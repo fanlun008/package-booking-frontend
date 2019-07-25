@@ -31,10 +31,11 @@
           :defaultSelectedKeys="['2']"
           :style="{ lineHeight: '64px' }"
         >
-          <a-menu-item key="1">已预约</a-menu-item>
-          <a-menu-item key="2">已取件</a-menu-item>
-          <a-menu-item key="3">未预约</a-menu-item>
-          <a-menu-item key="4">
+          <a-menu-item key="1" @click="selectedFilterType('appoint')">已预约</a-menu-item>
+          <a-menu-item key="2" @click="selectedFilterType('picked')">已取件</a-menu-item>
+          <a-menu-item key="3" @click="selectedFilterType('nopick')">未取件</a-menu-item>
+          <a-menu-item key="4" @click="selectedFilterType('all')">全部</a-menu-item>
+          <a-menu-item key="5">
             <div>
               <a-button type="primary" @click="showModal">Open Modal</a-button>
               <a-modal title="Basic Modal" v-model="modelvisible" @ok="handleOk">
@@ -98,18 +99,18 @@
                 <td style="width: 100px">运单号</td>
                 <td style="width: 100px">收件人</td>
                 <td style="width: 100px">电话</td>
-                <td style="width: 100px">预约时间</td>
+                <td style="width: 250px">预约时间</td>
                 <td style="width: 100px">状态</td>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(packaging, index) in packagings" :key="index">
+              <tr v-for="(packaging, index) in filterPack" :key="index">
                 <td>{{packaging.billno}}</td>
                 <td>{{packaging.receiver}}</td>
                 <td>{{packaging.phonenum}}</td>
                 <td>{{packaging.apptime}}</td>
                 <td>{{packaging.status}}</td>
-                <td>
+                <td v-if="packaging.status!=='已取件'">
                   <a-button @click="confirmpick(packaging.id)">确认收货</a-button>
                 </td>
               </tr>
@@ -134,6 +135,10 @@ export default {
   },
 
   methods: {
+    selectedFilterType(type) {
+      this.$store.commit('setvisibility', type)
+    },
+
     handleSubmit (e) {
       e.preventDefault();
       this.form.validateFields((err, values) => {
@@ -159,7 +164,8 @@ export default {
     }
   },
   computed: {
-    ...mapState(["packagings"])
+    ...mapState(["packagings", "visibility"]),
+    ...mapGetters(['filterPack'])
   },
 
   mounted() {

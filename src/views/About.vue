@@ -20,7 +20,7 @@
         ]"
         />-->
         <a-date-picker
-          showTime
+          :showTime="{ defaultValue: moment('00:00:00', 'HH:mm:ss') }"
           format="YYYY-MM-DD HH:mm:ss"
           placeholder="Select Time"
           @ok="onOk"
@@ -28,6 +28,8 @@
           'apptime',
           {rules: [{ required: true, message: 'Please input your note!' }]}
           ]"
+          :disabledDate="disabledDate"
+          :disabledTime="disabledDateTime"
         />
       </a-form-item>
 
@@ -41,9 +43,8 @@
 
 <script>
 
-
+import moment from 'moment';
 export default {
-
   data() {
     return {
       form: this.$form.createForm(this),
@@ -51,6 +52,34 @@ export default {
   },
 
   methods: {
+    moment,
+    disabledDate(current) {
+      // Can not select days before today and today
+      return current && current < moment().endOf('day');
+    },
+
+    range(start, end) {
+      const result = [];
+      for (let i = start; i < end; i++) {
+        result.push(i);
+      }
+      return result;
+    },
+
+    disabledDateTime() {
+      return {
+        disabledHours: () => {
+          let arr = this.range(0, 8);
+          for(let i = 20; i < 24; i++) {
+            arr.push(i)
+          }
+          return arr;
+        },
+        disabledMinutes: () => this.range(30, 60),
+        disabledSeconds: () => [55, 56],
+      };
+    },
+
 
     handleSubmit (e) {
       e.preventDefault();
